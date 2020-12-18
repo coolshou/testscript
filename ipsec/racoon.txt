@@ -1,0 +1,161 @@
+
+
+ PC1----------IPSec -------- (WAN)DUT(LAN) -------- PC2
+
+## strongSwan ####################################################
+## exam config of conn
+config setup
+        strictcrlpolicy=no
+       # plutostart=no
+
+conn %default
+        keyexchange=ikev2
+        rekeymargin=3m
+        keyingtries=1
+
+conn LTEkaka3
+    ### IPSec's IP for DUT WAN connect
+        left=192.168.3.12
+    ###
+        leftsubnet=192.168.110.0/24
+        # leftid=segw05.neceur.com
+        # leftcert=segw-cert.pem
+        authby=psk
+        leftfirewall=yes
+    ###
+        # right=%any
+    ###
+        # rightid=10011950050BA743801
+    ### The internal source IP to use in a tunnel for the remote peer.
+        rightsourceip=192.168.1.0/24
+        auto=add
+    # use in key exchange encryption
+        ike=aes128-sha1-modp1024!
+    # use in data exchange encryption
+        esp=null-sha1-modp1024!
+        reauth=no
+
+
+
+# install strongSwan
+sudo apt install strongswan
+
+# config
+## route
+ route add -net 192.168.1.0/24 gw 192.168.3.135
+
+
+# starter
+#### https://wiki.strongswan.org/projects/strongswan/wiki/IpsecConf
+## install strongswan-starter
+sudo apt install strongswan-starter
+## config /etc/ipsec.conf   /etc/ipsec.d/
+## key /etc/ipsec.secrets
+
+# get Pre-Shared Key
+sudo cat  /etc/ipsec.secrets
+
+
+
+
+## usage
+# start
+ipsec start
+
+# status <conn name>
+ipsec status
+
+
+### racoon server ######################################################
+sudo /etc/init.d/racoon start
+# sudo racoon -F -f  /etc/racoon/racoon.conf
+### racoon - debug
+# sudo ./src/racoon/racoon -F -d -f  /etc/racoon/racoon.conf
+
+
+flush;
+spdflush;
+spdadd 192.168.1.0/24 192.168.110.0/24 any -P out ipsec esp/tunnel/192.168.3.135-192.168.3.12/require;
+spdadd 192.168.110.0/24 192.168.1.0/24 any -P in ipsec esp/tunnel/192.168.3.12-192.168.3.135/require;
+
+
+1. config  /etc/racoon/setkey.conf
+flush;
+spdflush;
+spdadd 192.168.110.0/24 192.168.1.0/24 any -P out ipsec esp/tunnel/192.168.3.12-192.168.3.135/require;
+spdadd 192.168.1.0/24 192.168.110.0/24 any -P in ipsec esp/tunnel/192.168.3.135-192.168.3.12/require;
+
+2. 加載 setkey.cof 配置文件
+sudo ./src/setkey/setkey -f /etc/racoon/setkey.conf
+3. show SPD data
+sudo ./src/setkey/setkey -DP
+
+# route
+route add -net
+
+#######################################################################################################################
+# control by swanctl (5.7.0, The swanctl --load* commands read connections, secrets and IP address pools from swanctl.conf, located in the swanctl configuration directory, usually /etc/swanctl.)
+#####  https://wiki.strongswan.org/projects/strongswan/wiki/Swanctl
+##  install
+sudo apt install strongswan-swanctl
+
+## usage
+
+
+#####
+Remote IPSec Gateway Address : 	  192.168.3.12
+Local IP Address Type :
+IP Address : 	  192.168.70.30
+IP Subnetmask :
+Remote IP Address Type :
+Remote IP Address : 	  192.168.70.14
+Key Exchange Method :
+
+
+# cat /var/run/ipsec_start.sh
+#!/bin/sh
+echo [$0] ... > /dev/console
+chmod 400 /var/psk.txt
+route add -net 192.168.70.14/32 gw 192.168.70.30
+iptables -I INPUT -i eth4 --src 192.168.3.12 -j ACCEPT
+iptables -t nat -I PREROUTING -i eth4 --src 192.168.3.12 --dst 192.168.3.135 -j ACCEPT
+iptables -t nat -I POSTROUTING -o eth4 --src 192.168.70.30/32 --dst 192.168.70.14/32 -j ACCEPT
+iptables -t nat -I PREROUTING -i eth4 -p udp --dport 500 -j ACCEPT
+setkey -f /var/setkey.conf > /dev/null 2>&1
+if [ -f /var/run/racoon.pid ]; then
+	killall -HUP racoon > /dev/null 2>&1
+else
+	racoon -f /var/racoon.conf -l /var/racoon.log > /dev/null 2>&1
+fi
+
+
+# cat /var/setkey.conf
+flush;
+spdflush;
+spdadd 192.168.1.0/24 192.168.110.0/24 any -P out ipsec esp/tunnel/192.168.3.135-192.168.3.12/require;
+spdadd 192.168.110.0/24 192.168.1.0/24 any -P in ipsec esp/tunnel/192.168.3.12-192.168.3.135/require;
+
+# cat /var/racoon.conf
+path pre_shared_key "/var/psk.txt";
+path certificate "/var/cert";
+
+remote "192.168.3.12" {
+exchange_mode main;
+dpd_delay 10;
+rekey on;
+lifetime time 60 sec;
+proposal_check obey;
+proposal {
+encryption_algorithm aes128;
+hash_algorithm sha1;
+authentication_method pre_shared_key;
+dh_group modp2048;
+}
+}
+
+sainfo address 192.168.1.0/24 any address 192.168.110.0/24 any {
+lifetime time 60 sec;
+encryption_algorithm aes128;
+authentication_algorithm hmac_sha1;
+compression_algorithm deflate;
+}

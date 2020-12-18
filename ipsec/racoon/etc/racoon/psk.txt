@@ -1,0 +1,2 @@
+#psk for ipsec
+DUT_WAN_IP ipsec
