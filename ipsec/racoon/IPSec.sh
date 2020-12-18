@@ -158,7 +158,7 @@ start_racoon(){
 	mkdir -p /var/run/racoon/
     fi
     # /etc/init.d/racoon start
-    racoon  -f /etc/racoon/racoon.conf -l "${LOG_FILE}"
+    racoon  -f /etc/racoon/racoon.conf -l "${LOG_FILE}" &
     # racoon -ddddddd -f /etc/racoon/racoon.conf -l /tmp/ipsec-log.txt -v
     tail -f  /tmp/ipsec-log.txt
 }
