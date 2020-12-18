@@ -1,0 +1,144 @@
+Dual Stack-Lite (DS-lite) - It is basically an IPv6 tunnel sending and receiving IPv4 packets
+
+DS-lite device can originate and understand both IPv4 and IPv6 packets. 
+This model is built on IPv4-in-IPv6 tunnels to cross the network to reach a carrier-grade IPv4-IPv4 NAT. 
+There are two core ideas behind this model, as said in [7]:
+
+    - Move from a deployment model where a globally unique IPv4 address is provisioned per customer and shared among several devices within that customer premise to a deployment model where that globally unique IPv4 address is shared among many customers
+    - Provide transport of IPv4 traffic to customers over a core network that uses only IPv6
+
+## DS-lite 是在一個純 IPv6 網路上，架設一個 Tunnel 讓 IPv4 通行
+
+
+Schema
+
+Figure:
+------
+                                  Switched Ethernet
+/----------\          Midi Gateway       ||
+|          |          +------------+     ||
+| Internet |-- ADSL --|Home Gateway|-----||  10                 
+|          |          | router/NAT |     ||-----------\
+\----------/          +------------+     ||           |    eth6 10.74.38.10/8 GW 10.48.45.190 DNS 168.95.1.1
+                                                      |    2001:240:63f:ff11::1/64
+                                                  +-------+     
+                                                  |       |  tun0     192.0.0.1
+                                                  | AFTR  |  pool     10.74.38.11
+                                                  |       |  endpoint 2001:240:63f:ff01::1
+                      DIR-815                     +-------+      
++--------+             +----+                         |    eth5 no IPv4    
+|        |  <- RA      |    |  <- DHCPv6 PD + DS-lite |    2001:240:63ff:ff00::1/64    
+|   PC   |.............| B4 |------------|| ----------/
+|        |             |    |            ||                   
++--------+             +----+            IPv6 only Internet
+                                    
+IPv6 addr       DHCPv6-PD      eth3 2001:240:63f:ff00::x 
+192.168.1.100   192.168.1.1    ip4ip6.WA tunnel for IPv4 192.0.0.2
+
+
+
+login test / test
+su / 123456
+
+1. Set up DNS server  ( Bind9 )
+Install Bind
+- yum install bind
+- sudo apt-get install bind9
+
+Set up Bind
+- vi /etc/named.conf 
+	Creat a new domain zone.
+- vi /var/named/named.example
+	Configure DNS Information for new domain zone
+	
+ubuntu:
+ cp named.conf /etc/bind/
+ cp named.conf.options /etc/bind/
+ cp named.conf.logging /etc/bind/
+ cp named.conf.example-zones /etc/bind/
+ cp named.example /etc/bind/
+
+
+Start DNS
+- /etc/init.d/named start
+ubuntu:
+- sudo service bind9 restart
+
+2. Network configure
+- vi /etc/sysctl.conf
+	net.ipv4.ip_forward = 1
+	net.ipv6.conf.all.forwarding=1
+	
+20110805 update
+	Need to enable IPv4 and IPv6 forwarding
+	echo 1 > /proc/sys/net/ipv4/ip_forward
+	echo 1 > /proc/sys/net/ipv6/conf/all/forwarding
+	
+	
+- sysctl -p
+- vi /etc/sysconfig/network
+	NETWORKING=yes
+	NETWORKING_IPV6=yes
+	IPV6FORWARDING=yes
+- vi /etc/sysconfig/network-scripts/ifcfg-eth1
+- vi /etc/sysconfig/network-scripts/ifcfg-eth2
+- service network restart
+
+ubuntu: (no GUI)
+- cp interfaces /etc/network/
+- cp eth0.cfg  /etc/network/interfaces.d/
+- cp eth1.cfg  /etc/network/interfaces.d/
+
+- service networking restart
+
+ubuntu: (GUI, sudo service network-manager restart)
+
+
+2. Enable RADVD
+- sudo apt-get install radvd
+#change interface name
+- vi /etc/radvd.conf
+- radvd -C /etc/radvd.conf &
+
+sudo service radvd restart
+
+3. Set up DHCPv6 ( Dibbler )
+- copy /etc/dibble/AFTR-dibbler-server
+- vi /etc/dibble/server.conf
+- ./AFTR-dibbler-server start
+
+
+20110805 update
+	Change DHCPv6 Server to ISC because ISC-dhcp can support ds-lite option
+	yum install dhcp - to install dhcp-4.2.1-P1
+	config aftr-dhcpd6.conf
+	dhcpd -6 -cf aftr-dhcpd6.conf eth1
+	
+ubuntu:
+- sudo apt-get install isc-dhcp-server   # (4.2.4-7ubuntu12.3)
+- sudo cp aftr-dhcpd6.conf /etc/dhcp/
+- sudo cp default/isc-dhcp6-server  /etc/default/
+- sudo cp isc-dhcp6-server /etc/init.d/
+- sudo cp /var/lib/dhcp/dhcpd.leases /var/lib/dhcp/dhcpd6.leases
+#test
+dhcpd -6 -cf /etc/dhcp/aftr-dhcpd6.conf eth1
+
+sudo service isc-dhcp6-server restart
+
+3.1 DHCP for Transport Services Network (TSV)
+
+
+
+4. Set up aftr-1.1
+Install aftr-1.1
+- ./configure
+- make
+
+Set up aftr-1.1
+- vi aftr/aftr.conf
+- vi aftr/aftr-script
+#/etc/modules
+- cp aftr-module.conf /etc/modules-load.d/
+- aftr -c ./aftr/aftr.conf -s ./aftr/aftr-script
+
+

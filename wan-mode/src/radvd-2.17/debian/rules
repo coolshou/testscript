@@ -1,0 +1,23 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+export DEB_LDFLAGS_MAINT_APPEND = -lcheck_pic
+export DEB_BUILD_OPTIONS=nocheck
+
+%:
+	dh $@ --with autoreconf
+
+#NN override_dh_auto_build:
+#NN	cp debian/copyright.in > COPYRIGHT
+## Not Now
+
+override_dh_auto_clean:
+	dh_auto_clean
+	rm -f gram.c gram.h scanner.c
+	rm -f privsep.c
+
+override_dh_install:
+	dh_install --list-missing
+
+override_dh_installinit:
+	dh_installinit --error-handler=true

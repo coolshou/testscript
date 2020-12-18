@@ -1,0 +1,18 @@
+Both M and O Flags are Set to 0. 
+This combination corresponds to a network without a DHCPv6 infrastructure. 
+Hosts use router advertisements for non-link-local addresses and 
+other methods (such as manual configuration) to configure other settings.
+
+Both M and O Flags are Set to 1. 
+DHCPv6 is used for both addresses and other configuration settings. 
+This combination is known as DHCPv6 stateful, in which DHCPv6 is assigning stateful addresses to IPv6 hosts.
+
+The M Flag is Set to 0 and the O Flag is Set to 1. 
+DHCPv6 is not used to assign addresses, only to assign other configuration settings. 
+Neighboring routers are configured to advertise non-link-local address prefixes from which IPv6 hosts derive stateless addresses. 
+This combination is known as DHCPv6 stateless: DHCPv6 is not assigning stateful addresses to IPv6 hosts, but stateless configuration settings.
+
+The M Flag is Set to 1 and the O Flag is Set to 0. 
+In this combination, DHCPv6 is used for address configuration but not for other settings. 
+Because IPv6 hosts typically need to be configured with other settings, 
+such as the IPv6 addresses of Domain Name System (DNS) servers, this is an unlikely combination.

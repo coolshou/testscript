@@ -1,0 +1,24 @@
+Description: remove linux/if_arp.h from configure.ac
+ The introduction of linux-libc-dev 4.9.30-1
+ resulted into a fails to build from source for 2.16
+ This patch fixes that FTBFS
+ .
+ See also the Debian bug report.
+Author: Geert Stappers <stappers@debian.org>
+ Bug: URL to the upstream bug report if any, implies patch has been forwarded, optional
+Bug-Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=864269
+ Forwarded: <URL|no|not-needed, useless if you have a Bug field, optional>
+ Applied-Upstream: version|URL|commit, identifies patches merged upstream, optional
+ Reviewed-by: name and email of a reviewer, optional
+Last-Update: 2017-06-08
+
+--- a/configure.ac
++++ b/configure.ac
+@@ -156,7 +156,6 @@ AC_HEADER_STDC
+ AC_CHECK_HEADERS( \
+ 	getopt.h \
+ 	ifaddrs.h \
+-	linux/if_arp.h \
+ 	machine/limits.h \
+ 	machine/param.h \
+ 	net/if_arp.h \

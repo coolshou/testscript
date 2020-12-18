@@ -1,0 +1,11 @@
+#!/bin/sh
+
+set -e
+
+#DEBHELPER#
+
+if [ "$1" = purge ]; then
+  if dpkg-statoverride --list /var/run/radvd >/dev/null; then
+    dpkg-statoverride --remove /var/run/radvd
+  fi
+fi

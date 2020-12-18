@@ -1,0 +1,19 @@
+#!/bin/bash
+#--------------
+# Testing radvd
+#--------------
+set -e
+DAEMON=radvd
+
+# copy default config file
+cp /usr/share/doc/radvd/examples/simple-radvd.conf /etc/radvd.conf
+
+# add ipv6 forwarding, restart daemon
+sysctl -w net.ipv6.conf.all.forwarding=1
+/etc/init.d/${DAEMON} restart > /dev/null 2>&1
+if pidof -x $DAEMON > /dev/null; then
+    echo "OK"
+else
+    echo "ERROR: ${DAEMON} IS NOT RUNNING"
+    exit 1
+fi

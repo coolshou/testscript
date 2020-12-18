@@ -1,0 +1,3 @@
+[submodule "wan-mode/src/accel-ppp.git"]
+	path = wan-mode/src/accel-ppp.git
+	url = https://git.code.sf.net/p/accel-ppp/code

@@ -1,0 +1,95 @@
+
+########################################################################
+# config
+
+########################################################################
+#DUT WAN Mac Address
+DUT_WAN_MAC=00:14:79:01:23:31
+#DIR-860B1 (Golden sample)
+#DUT_WAN_MAC=6C:19:8F:D0:28:53
+#DIR-885
+#DUT_WAN_MAC=00:22:B0:3C:F6:6F
+#Dual WAN (TODO)
+DUT_WAN2_MAC=90:A7:C1:DD:02:F3
+
+#DUT's WAN Link Local Address
+DUT_WAN_LLA=
+########################################################################
+# 1: enable DS-Lite, 0: disable DS-Lite
+DS_LITE=0
+# 1: enable PPPoE/L2TP/PPTP
+ACCEL_PPP=1
+# 1: use xl2tpd/strongswan L2TP/IPSec
+useIPSEC=0
+########################################################################
+# AFTR_WAN
+AFTR_WAN_IF=eth0
+#cat /sys/class/net/eth0/address
+AFTR_WAN_MAC=00:50:ba:10:d9:0b
+AFTR_WAN_IP=192.168.110.125
+AFTR_WAN_GW=192.168.110.1
+AFTR_ICMP=192.168.110.31
+AFTR_ICMP2=192.168.110.32
+AFTR_WAN_IPv6=2001:240:63f:ff11::1
+
+########################################################################
+#AFTR_LAN_IF connect to DUT's WAN
+AFTR_LAN_IF=eth1
+AFTR_LAN_IPv6=2001:240:63f:ff00::1
+AFTR_ENDPOINT_IPv6=2001:240:63f:ff01::1
+AFTR_ENDPOINT_IPv6_PREFIX=2001:240:63f:ff01::
+AFTR_ACL6=2001:240:63f:ff00::
+ROUTER_IPv6=2001:240:63f:ff00::1000
+ROUTE_IPv6_PREFIX=2001:240:64f:ff00::
+ROUTER2_IPv6=2001:240:63f:ff00::1000
+
+#ROUTE2_IPv6_PREFIX=2001:240:64f:ff00::
+
+B4_TUNNEL_IP=192.0.0.2
+
+#0: RDNSS(M=0,O=0), 1: stateless(M=0,O=1), 2: stateful(M=1,O=1(ignore))
+IPV6MODE=2
+DHCP6_IF=${AFTR_LAN_IF}
+DHCPv6_IPv6_START=2001:240:63f:ff00::2001
+DHCPv6_IPv6_END=2001:240:63f:ff00::2999
+########################################################################
+#L2TP/PPTP
+PPP_IP=192.168.3.3
+LAN_IP=192.168.3.12
+#LAN_IP=172.25.7.1
+GW_IP=192.168.3.1
+DNS_IP=172.19.10.99
+DNS_IP2=8.8.8.8
+DNS_IPv6=2001:4860:4860::8888
+DNS_IPv6_2=2001:4860:4860::8844
+
+# static ip set in chap-secrets/ ip pool set in accel-ppp.conf
+USE_STATIC_IP=1
+## PPPoE/PPTP/L2TP ip pool with range
+IPPOOL_PPPOE=192.168.3.201-217
+IPPOOL_PPTP=192.168.3.219-235
+IPPOOL_L2TP=192.168.3.237-254
+## PPPoE/PPTP/L2TP ip pool with single ip => cause problem!!
+IP_PPPOE=192.168.3.200
+IP_PPTP=192.168.3.218
+IP_L2TP=192.168.3.236
+
+# DHCPv4 
+DHCP_IF="${AFTR_LAN_IF} eth0"
+IPPOOL_DHCPv4_START=192.168.3.100
+IPPOOL_DHCPv4_END=192.168.3.199
+DHCPv4_DNS=192.168.3.1
+# No second DNS
+#DHCPv4_DNS2=
+# With second DNS
+DHCPv4_DNS2=", 172.19.10.99"
+########################################################################
+# manager network
+MANAGER_IF=eth2
+MANAGER_IP=192.168.70.14
+
+########################################################################
+
+#TODO: check ununtu 14.04
+isOldUbuntu=0 # 1 will cause problem on 14.04.3
+

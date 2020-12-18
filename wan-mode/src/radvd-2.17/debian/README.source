@@ -1,0 +1,72 @@
+
+Hi,
+
+The hard part of _writing_ this _readme_ was imaging the audience.
+
+
+Most likely you want to work on the radvd debian package.
+
+Assumed is that `debcheckout radvd` is being done.
+
+Please do also `git checkout upstream` and `git checkout master`
+so you get the upstream branch and are for sure in the master branch.
+
+Have installed 'git-buildpackage',
+it is a "maintainers build dependency"  8^)
+
+Other packages that are needed:
+- debhelper
+- dh-autoreconf
+
+Have done `git-pbuilder create` at least once.
+(FYI Updating has to be done with `git-pbuilder update`)
+
+Verify that you can rebuild this package,
+do `gbp buildpackage`.
+
+Now the actual maintenance.
+
+* upstream has new tarball release
+* download it plus the signature and checksums
+* verify integrety of the tarball
+* gbp import-orig the tarball
+* update the debian directory, the actual actual maintenance
+* build with `gbp buildpackage`
+* check
+* double check
+* git tag debian/version
+* publish
+** `git push` your
+** debian sign and `dput` if you have the privilege ...
+
+The maintenance more in shell commands
+
+  export VER=2.18
+  uscan # does download and checks integrety
+  gbp import-orig ../radvd_${VER}.orig.tar.xz
+  ## the actual maintaince
+  ##  ...
+  ##  ...
+  ##  dch -i
+  gbp buildpackage -uc -us
+  lintian
+  sudo dpkg --install ../radvd_${VER}*.deb
+  sudo dpkg --remove radvd
+  sudo dpkg --install ../radvd_${VER}*.deb
+  service radvd restart
+  # see router advertisements on your network with `radvdump`
+  echo check again :-)
+  git tag | grep debian | tail -n 3 # to see previous tags
+  git tag debian/1%${VER}-1
+  git push origin master
+  git push origin upstream # because updated with `gbp import-orig`
+  git push --tags
+  #
+  # debrsign -kGPGkey host_with_GPGkey ../radvd_${VER}-1_armhf.changes
+  # dput ../radvd_${VER}-1_armhf.changes
+
+
+Hints, tricks and tips
+----------------------
+
+* When using `quilt` have done `export QUILT_PATCHES=debian/patches`

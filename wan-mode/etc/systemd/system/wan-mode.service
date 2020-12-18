@@ -1,0 +1,10 @@
+[Unit]
+Description=wan mode server for PPPoE/PPTP/L2TP/DS-Lite
+After=syslog.service
+
+[Service]
+Type=forking
+ExecStart=/etc/wan-mode/wan-mode.sh
+
+[Install]
+WantedBy=multi-user.target

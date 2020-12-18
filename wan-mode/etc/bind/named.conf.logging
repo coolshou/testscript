@@ -1,0 +1,10 @@
+//
+// logging
+//
+
+logging {
+        channel default_debug {
+                file "/var/cache/bind/named.log";
+                severity dynamic;
+        };
+};

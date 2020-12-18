@@ -1,0 +1,20 @@
+$TTL 604800
+@	IN SOA	test.lab. dns.test.lab. (
+					;Every time you edit a zone file, you should increment the serial value before you restart the named process
+					7	; serial
+					604800	; refresh
+					86400	; retry
+					2419200	; expire
+					604800  ; minimum Negative Cache TTL
+					)
+; name servers - NS records
+	IN	NS	test.lab.
+	IN	NS	dns.test.lab.
+		
+        IN	A	#AFTR_WAN_IP#
+	IN	AAAA	#AFTR_WAN_IPv6#
+;dns	IN	A	#AFTR_WAN_GW#
+dns	IN	A	#AFTR_WAN_IP#
+aftr	IN	AAAA	#AFTR_ENDPOINT_IPv6#
+
+

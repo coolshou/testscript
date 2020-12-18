@@ -1,0 +1,38 @@
+# interfaces(5) file used by ifup(8) and ifdown(8)
+auto lo
+iface lo inet loopback
+
+# Upstream network
+auto #AFTR_WAN_IF#
+iface #AFTR_WAN_IF# inet static
+    address #AFTR_WAN_IP#
+    netmask 255.255.255.0
+    #gateway #AFTR_WAN_GW#
+    dns-nameservers #DNS_IP#
+
+auto #AFTR_WAN_IF#
+iface #AFTR_WAN_IF# inet6 static
+	address #AFTR_WAN_IPv6#
+	netmask 64
+
+########################################################################
+# Transport Services Network
+auto #AFTR_LAN_IF#	
+iface #AFTR_LAN_IF# inet static
+    address #LAN_IP#
+    netmask 255.255.255.0
+    gateway #GW_IP#
+    dns-nameservers #DNS_IP#
+
+auto #AFTR_LAN_IF#
+iface #AFTR_LAN_IF# inet6 static
+        address #AFTR_LAN_IPv6#
+        netmask 64
+    
+########################################################################
+# manager network interface
+auto #MANAGER_IF#
+iface #MANAGER_IF# inet static
+	address #MANAGER_IP#
+	netmask 255.255.255.0
+

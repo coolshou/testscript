@@ -1,0 +1,8 @@
+zone "example.com" IN {
+	type master;
+	file "/etc/bind/named.example";
+};
+zone "test.lab" IN {
+	type master;
+	file "/etc/bind/named.aftr";
+}

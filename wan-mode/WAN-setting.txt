@@ -1,0 +1,121 @@
+*** accel-ppp v1.11.2  ***
+*** aftr 1.1 ***
+====================================================================
+modift 00_setting
+sudo ./01-start.sh
+
+====================================================================
+# PPTP/L2TP/PPPoE config file: 
+/etc/accel-ppp/accel-ppp.conf
+
+# username/password file:
+/etc/ppp/chap-secrets
+====================================================================
+# DEBUG
+#  PPTP/L2TP/PPPoE 
+/var/log/accel-ppp/accel-ppp.log
+/var/log/accel-ppp/auth-fail.log
+
+#  DS-Lite
+
+====================================================================
+0. DHCPv4 (WAN route - DIR-860)
+
+DUT will get IP: 192.168.3.100-199
+
+WEB UI
+IP 位址: 	192.168.3.100
+子網域遮罩: 	255.255.255.255
+預設閘道器: 	192.168.3.1
+主要 DNS 伺服器: 	192.168.3.1
+輔助 DNS 伺服器: 	
+====================================================================
+0.1 DHCPv6 server (on eth0, via aftr-dhcp6)
+
+With MAC address set
+
+WEB UI
+IPv6:       2001:240:63F:FF00::1000
+預設閘道器: 	FE80::226:5AFF:FE7E:67C6 FE80::100:0:0:0
+主要 DNS 伺服器: 	2001:240:63F:FF00::1
+輔助 DNS 伺服器: 	2001:4860:4860::8844
+
+====================================================================
+1. PPPoE  (on eth0, via accel-ppp)
+
+PPPoE server(eth0) ----(WAN)DUT(LAN)----LAN PC
+
+USER Name: test
+Password: 123456
+
+MTU : 1492
+
+DUT will get IP: 192.168.3.200-217
+LAN PC can ping 8.8.8.8 & 192.168.3.3 & 192.168.3.1
+
+WEB UI
+IP 位址: 	192.168.3.200
+子網域遮罩: 	255.255.255.255
+預設閘道器: 	192.168.3.3
+主要 DNS 伺服器: 	172.19.10.99
+輔助 DNS 伺服器: 	8.8.8.8
+====================================================================
+1.1 PPPoEv6  (on eth0, via accel-ppp)
+
+USER Name: test
+Password: 123456
+
+WEB UI
+IPv6 位址: 	FC00:0:1:2:C658:D6FF:FE3B:2AB5
+預設閘道器: 	FE80::E524:212F:DBC1:08A4
+主要 DNS 伺服器: 	2001:4860:4860::8888
+輔助 DNS 伺服器: 	2001:4860:4860::8844
+====================================================================
+2. PPTP  (on eth0, via accel-ppp)
+PPTP server(eth0) ----(WAN)DUT(LAN)----LAN PC
+
+Server IP: 192.168.3.2
+USER Name: test
+Password: 123456
+
+DUT will get IP: 192.168.3.218-235
+LAN PC can ping 8.8.8.8 & 192.168.3.3
+
+WEB UI
+網路連線類型: 	動態 IP (PPTP)
+IP 位址: 	192.168.3.218
+子網域遮罩: 	255.255.255.255
+預設閘道器: 	192.168.3.3
+主要 DNS 伺服器: 	168.95.1.1
+輔助 DNS 伺服器: 	8.8.8.8
+
+====================================================================
+3. L2TP  (on eth0, via accel-ppp)
+L2TP server(eth0) ----(WAN)DUT(LAN)----LAN PC
+
+Server IP: 192.168.3.2
+USER Name: test
+Password: 123456
+
+DUT will get IP: 192.168.3.236-254
+LAN PC can ping 8.8.8.8 & 192.168.3.3
+
+WEB UI
+網路連線類型: 	動態 IP (L2TP)
+
+IP 位址: 	192.168.3.236
+子網域遮罩: 	255.255.255.255
+預設閘道器: 	192.168.3.3
+主要 DNS 伺服器: 	168.95.1.1
+輔助 DNS 伺服器: 	8.8.8.8
+====================================================================
+4. DS-Lite  (on eth0, via aftr)
+
+---(eth1)DS-Lite Aftr server(eth0) ----(WAN)DUT(LAN)----LAN PC
+
+WEB UI
+IPv4:
+IPv6:
+	IP: 
+	P DNS:
+	S DNS: 2001:4860:4860::8844

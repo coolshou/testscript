@@ -1,0 +1,22 @@
+#!/bin/bash
+. /etc/ppp/ip-up $1 $2 $3 $4 $5 $6
+
+WAN_IF=#DHCP_IF#
+PPP_IFACE="$1"
+logger "##########PPP_IFACE: $PPP_IFACE"
+# enable forward let VPN network and provite network route
+echo "1" > /proc/sys/net/ipv4/ip_forward
+echo "1" > /proc/sys/net/ipv4/ip_dynaddr
+# enable VPN connecttion
+#only PPTP port
+iptables -A INPUT -i $WAN_IF -p tcp --dport 1723 -j ACCEPT
+# TODO: L2TP port ?
+#iptables -A OUTPUT -p tcp --sport 1723 -j ACCEPT
+iptables -A INPUT -i $WAN_IF -p gre -j ACCEPT
+
+# enable NAT (pptp clients to talk to each other)
+iptables -A FORWARD -i ppp+ -o $WAN_IF -j ACCEPT
+iptables -A FORWARD -i $WAN_IF -o ppp+ -j ACCEPT
+iptables -A POSTROUTING -t nat -o  $WAN_IF -j MASQUERADE
+
+
